@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html ng-app="todo">
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=<% settings.charset %>" />
+<title>Todo Manager</title>
+<link rel="stylesheet" href="<% request.uri_base %>/static/bower_components/angular-ui/build/angular-ui.min.css" />
+<link rel="stylesheet" href="<% request.uri_base %>/static/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="<% request.uri_base %>/static/bower_components/bootstrap/dist/css/bootstrap-theme.min.css" />
+<style type="text/css">
+  noscript .alert-block {
+    margin-top: 0.1em;
+  }
+  .glyphicon-new-window {
+    font-size: 0.8em;
+    margin-left: 0.5em;
+  }
+  form .form-group {
+    margin-left: 0;
+    padding-left: 0;
+  }
+  .strikethrough {
+    color: #999;
+    text-decoration: line-through;
+  }
+  .tooltip-inner {
+    text-align: left;
+  }
+  .tooltip-inner ul {
+    padding-left: 2em;
+    padding-top: 0.5em;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <% content %>
+  </div>
+<script src="<% request.uri_base %>/static/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="<% request.uri_base %>/static/bower_components/underscore/underscore.js"></script>
+<script src="<% request.uri_base %>/static/bower_components/angular/angular.min.js"></script>
+<script src="<% request.uri_base %>/static/bower_components/angular-underscore/angular-underscore.min.js"></script>
+<script src="<% request.uri_base %>/static/bower_components/angular-ui/build/angular-ui-ieshiv.min.js"></script>
+<script src="<% request.uri_base %>/static/bower_components/angular-ui/build/angular-ui.min.js"></script>
+<script src="<% request.uri_base %>/static/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+<script>
+  angular.module('todo', ['angular-underscore', 'ui.bootstrap'])
+    .controller('TodoController', ['$scope', function($scope) {
+
+      $scope.init = function() {
+        $scope.Todos = [];
+        $scope.flushCache = {
+          getTodos: true,
+          getCompletedTodos: true
+        };
+      };
+
+      $scope.getTodos = function() {
+        if (!this.allTodos) {
+          this.allTodos = [];
+        }
+        if ($scope.flushCache.getTodos) {
+          console.log('getTodos(): Cache MISS');
+          this.allTodos = _.reject($scope.Todos, {
+            archived: 1
+          });
+          $scope.flushCache.getTodos = false;
+        }
+        else {
+          console.log('getTodos(): Cache HIT');
+        }
+        return this.allTodos;
+      };
+
+      $scope.getCompletedTodos = function() {
+        if (!this.completedTodos) {
+          this.completedTodos = [];
+        }
+        if ($scope.flushCache.getCompletedTodos) {
+          console.log('getCompletedTodos(): Cache MISS');
+          this.completedTodos = _.filter($scope.Todos, {
+            status: 0,
+            archived: 0
+          });
+          $scope.flushCache.getCompletedTodos = false;
+        }
+        else {
+          console.log('getCompletedTodos(): Cache HIT');
+        }
+        return this.completedTodos;
+      };
+
+      $scope.archiveTodo = function(Todo) {
+        Todo.archived = 1;
+        $scope.flushCache.getTodos =
+        $scope.flushCache.getCompletedTodos = true;
+      };
+
+      $scope.updateTodo = function(Todo, opts) {
+        _.each(_.keys(opts), function(prop) {
+          Todo[prop] = opts[prop];
+        });
+        $scope.flushCache.getTodos =
+        $scope.flushCache.getCompletedTodos = true;
+      };
+
+      $scope.addTodo = function() {
+        var description = $scope.todoDescription;
+        description = description.replace(/\s+/, ' ').trim();
+        if (description.length) {
+          $scope.Todos.push({
+            description: $scope.todoDescription,
+            status: 0,
+            archived: 0
+          });
+          $scope.flushCache.getTodos =
+          $scope.flushCache.getCompletedTodos = true;
+        }
+        $scope.todoDescription = '';
+      };
+
+      $scope.init();
+
+    }]);
+</script>
+<noscript>
+  <div class="alert alert-block alert-warning">
+    You either don't have Javascript enabled or are on a browser that does not
+    run Javascript. <a href="http://enable-javascript.com/" rel="external" target="_blank">
+      <span class="glyphicon glyphicon-new-window"></span> Learn more</a>
+  </div>
+</noscript>
+</body>
+</html>

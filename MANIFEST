@@ -1,0 +1,10 @@
+MANIFEST
+bin/app.pl
+config.yml
+environments/development.yml
+environments/production.yml
+views/index.tt
+views/layouts/main.tt
+MANIFEST.SKIP
+lib/todo.pm
+Makefile.PL
