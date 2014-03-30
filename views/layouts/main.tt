@@ -2,6 +2,7 @@
 <html ng-app="todo">
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=<% settings.charset %>" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
 <title>Todo Manager</title>
 <link rel="stylesheet" href="<% request.uri_base %>/static/bower_components/angular-ui/build/angular-ui.min.css" />
 <link rel="stylesheet" href="<% request.uri_base %>/static/bower_components/bootstrap/dist/css/bootstrap.min.css" />
@@ -29,6 +30,12 @@
     padding-left: 2em;
     padding-top: 0.5em;
   }
+  .user-menu {
+    margin-top: 2em;
+  }
+  [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
+  }
 </style>
 </head>
 <body>
@@ -42,11 +49,16 @@
 <script src="<% request.uri_base %>/static/bower_components/angular-ui/build/angular-ui-ieshiv.min.js"></script>
 <script src="<% request.uri_base %>/static/bower_components/angular-ui/build/angular-ui.min.js"></script>
 <script src="<% request.uri_base %>/static/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+<script src="<% request.uri_base %>/static/bower_components/angular-route/angular-route.min.js"></script>
+<script src="https://login.persona.org/include.js"></script>
 <script>
-  angular.module('todo', ['angular-underscore', 'ui.bootstrap'])
-    .controller('TodoController', ['$scope', '$http', function($scope, $http) {
+  angular.module('todo', ['angular-underscore', 'ui.bootstrap', 'ngRoute'])
+    .controller('TodoController', ['$scope', '$http', '$location', function($scope, $http, $location) {
 
       $scope.init = function() {
+        $scope.todo = {
+          description: ''
+        };
         $scope.todos = [];
         $scope.flushCache = {
           getTodos: true,
@@ -55,11 +67,43 @@
         $scope.fetchTodos();
       };
 
+      $scope.onUserLogin = function(personaKey) {
+        $http.post('/api/persona/login', { persona_key: personaKey })
+          .success(function() {
+            location.reload();
+          })
+          .error(function() {
+            navigator.id.logout();
+          });
+      };
+
+      $scope.onUserLogout = function() {
+        console.log(arguments);
+      };
+
+      $scope.userLogin = function() {
+        if (navigator.id) {
+          navigator.id.watch({
+            loggedInUser: null,
+            onlogin: $scope.onUserLogin,
+            onlogout: $scope.onUserLogout
+          });
+          navigator.id.request();
+        }
+      };
+
+      $scope.userLogout = function() {
+        navigator.id.logout();
+        console.log('Redirecting..');
+        window.location.href = '/user/logout';
+      };
+
       $scope.fetchTodos = function() {
         $http.get('/api/todos')
           .success(function(todos) {
             $scope.todos = todos;
             $scope.flushCache.getTodos = true;
+            $scope.flushCache.getCompletedTodos = true;
           });
       };
 
@@ -120,17 +164,22 @@
         _.each(_.keys(opts), function(prop) {
           todo[prop] = opts[prop];
         });
+        var todoId = todo._id.$oid;
+        $http.put('/api/todo/' + todoId, { todo: todo })
+          .success(function() {
+            // @TODO Do something here.
+          });
         // Flush client cache
         $scope.flushCache.getTodos =
         $scope.flushCache.getCompletedTodos = true;
       };
 
       $scope.addTodo = function() {
-        var description = $scope.todoDescription;
+        var description = $scope.todo.description;
         description = description.replace(/\s+/, ' ').trim();
         if (description.length) {
           var todo = {
-            description: $scope.todoDescription,
+            description: $scope.todo.description,
             status: 0,
             archived: 0
           };
@@ -142,7 +191,7 @@
           $scope.flushCache.getTodos =
           $scope.flushCache.getCompletedTodos = true;
         }
-        $scope.todoDescription = '';
+        $scope.todo.description = '';
       };
 
       $scope.init();

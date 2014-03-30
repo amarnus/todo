@@ -1,63 +1,79 @@
-<h1>Todo<br>
-<small>Built with Angular, Bootstrap, Dancer, MongoDB and Redis.</small>
-</h1>
-
 <!-- Main controller -->
 <div ng-controller="TodoController">
-  <div class="clearfix">
-    <!-- Input area to ask new todos -->
-    <form ng-submit="addTodo()" class="form">
-      <div class="form-group col-xs-8">
-        <label for="description" class="sr-only">
-          What do you want to do today?
-        </label>
-        <input type="text" name="description" ng-model="todoDescription"
-        class="form-control input-lg"
-        placeholder="What do you want to do today?" maxlength="200"/>
-      </div>
-      <div class="form-group col-xs-4">
-        <input type="submit" value="Add a todo" class="btn btn-lg btn-primary"/>
-        <button tooltip-trigger="click" tooltip-placement="bottom" tooltip-html-unsafe="<ul><li>Add todos</li><li>Mark todos as complete</li><li>Archive todos for later</li></ul>" class="btn btn-lg btn-default">Help</button>
-      </div>
-    </form>
+  <!-- Header area -->
+  <div class="header clearfix">
+    <h1 class="pull-left">Todo<br>
+    <small>Built using Angular, Dancer and MongoDB.</small></h1>
+    <div class="user-menu pull-right">
+      <a href="#" class="btn btn-danger"
+      ng-if="<% logged_in %>"
+      ng-cloak
+      ng-click="userLogout()">
+        <span class="glyphicon glyphicon-log-out"></span> Logout
+      </a>
+    </div>
   </div>
-
-  <!-- Message area -->
-  <div class="alert alert-info" ng-if="getCompletedTodos().length">
-    You have {{getCompletedTodos().length}} pending
-    {{ getCompletedTodos().length === 1 ? "todo" : "todos" }}.
+  <!-- Logged-out area -->
+  <div class="login-container" ng-if="<% logged_out %>" ng-cloak>
+    <a href="#" class="btn btn-primary btn-lg btn-login" ng-click="userLogin()">
+      <span class="glyphicon glyphicon-user"></span> Login with Persona
+    </a>
   </div>
-
-  <!-- View area -->
-  <table class="table table-bordered table-striped table-hover"
-  ng-if="getTodos().length">
-    <thead>
-      <th>Todo</th>
-      <th>Actions</th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="todo in getTodos()"
-      ng-class="{'success': todo.status === 1, 'danger': todo.status === 0}">
-        <td>
-          <span ng-class="{ 'strikethrough': todo.status === 1 }">
-            {{todo.description}}
-          </span>
-        </td>
-        <td class="actions">
-          <div class="btn-group btn-rounded">
-            <div ng-if="todo.status === 0" class="btn btn-success btn-sm"
-            ng-click="updateTodo(todo, { 'status': 1 })">
-              <span class="glyphicon glyphicon-ok"></span> Done
+  <!-- Logged-in area -->
+  <div class="dashboard" ng-if="<% logged_in %>" ng-cloak>
+    <div class="clearfix">
+      <!-- Input area to ask new todos -->
+      <form ng-submit="addTodo()" class="form">
+        <div class="form-group col-xs-8">
+          <label for="description" class="sr-only">
+            What do you want to do today?
+          </label>
+          <input type="text" name="description" ng-model="todo.description"
+          class="form-control input-lg"
+          placeholder="What do you want to do today?" maxlength="200"/>
+        </div>
+        <div class="form-group col-xs-4">
+          <input type="submit" value="Add a todo" class="btn btn-lg btn-primary"/>
+          <button tooltip-trigger="click" tooltip-placement="bottom" tooltip-html-unsafe="<ul><li>Add todos</li><li>Mark todos as complete</li><li>Archive todos for later</li></ul>" class="btn btn-lg btn-default">Help</button>
+        </div>
+      </form>
+    </div>
+    <!-- Message area -->
+    <div class="alert alert-info">
+      You have {{getCompletedTodos().length}} pending
+      {{ getCompletedTodos().length === 1 ? "todo" : "todos" }}.
+    </div>
+    <!-- View area -->
+    <table class="table table-bordered table-striped table-hover"
+    ng-if="getTodos().length">
+      <thead>
+        <th>Todo</th>
+        <th>Actions</th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="todo in getTodos()"
+        ng-class="{'success': todo.status === 1, 'danger': todo.status === 0}">
+          <td>
+            <span ng-class="{ 'strikethrough': todo.status === 1 }">
+              {{todo.description}}
+            </span>
+          </td>
+          <td class="actions">
+            <div class="btn-group btn-rounded">
+              <div ng-if="todo.status === 0" class="btn btn-success btn-sm"
+              ng-click="updateTodo(todo, { 'status': 1 })">
+                <span class="glyphicon glyphicon-ok"></span> Done
+              </div>
+              <div ng-if="todo.status === 1" class="btn btn-danger btn-sm"
+              ng-click="updateTodo(todo, { 'status': 0 })">
+                <span class="glyphicon glyphicon-remove"></span> Not yet done
+              </div>
+              <a href="#" ng-click="archiveTodo(todo)" class="btn btn-info btn-sm">
+                <span class="glyphicon glyphicon-cloud"></span> Archive
+              </a>
             </div>
-            <div ng-if="todo.status === 1" class="btn btn-danger btn-sm"
-            ng-click="updateTodo(todo, { 'status': 0 })">
-              <span class="glyphicon glyphicon-remove"></span> Not yet done
-            </div>
-            <a href="#" ng-click="archiveTodo(todo)" class="btn btn-info btn-sm">
-              <span class="glyphicon glyphicon-cloud"></span> Archive
-            </a>
-          </div>
-      </tr>
-    </tbody>
-  </table>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

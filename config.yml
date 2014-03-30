@@ -25,3 +25,5 @@ template: "simple"
 #   template_toolkit:
 #     start_tag: '[%'
 #     end_tag:   '%]'
+
+session: 'YAML'
