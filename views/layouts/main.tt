@@ -44,14 +44,30 @@
 <script src="<% request.uri_base %>/static/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 <script>
   angular.module('todo', ['angular-underscore', 'ui.bootstrap'])
-    .controller('TodoController', ['$scope', function($scope) {
+    .controller('TodoController', ['$scope', '$http', function($scope, $http) {
 
       $scope.init = function() {
-        $scope.Todos = [];
+        $scope.todos = [];
         $scope.flushCache = {
           getTodos: true,
           getCompletedTodos: true
         };
+        $scope.fetchTodos();
+      };
+
+      $scope.fetchTodos = function() {
+        $http.get('/api/todos')
+          .success(function(todos) {
+            $scope.todos = todos;
+            $scope.flushCache.getTodos = true;
+          });
+      };
+
+      $scope.saveTodo = function(todo) {
+        $http.post('/api/todos', { todo: todo })
+          .success(function() {
+            if (console) { console.log('Successfully saved a todo to the backend.'); }
+          });
       };
 
       $scope.getTodos = function() {
@@ -60,7 +76,7 @@
         }
         if ($scope.flushCache.getTodos) {
           console.log('getTodos(): Cache MISS');
-          this.allTodos = _.reject($scope.Todos, {
+          this.allTodos = _.reject($scope.todos, {
             archived: 1
           });
           $scope.flushCache.getTodos = false;
@@ -77,7 +93,7 @@
         }
         if ($scope.flushCache.getCompletedTodos) {
           console.log('getCompletedTodos(): Cache MISS');
-          this.completedTodos = _.filter($scope.Todos, {
+          this.completedTodos = _.filter($scope.todos, {
             status: 0,
             archived: 0
           });
@@ -89,16 +105,22 @@
         return this.completedTodos;
       };
 
-      $scope.archiveTodo = function(Todo) {
-        Todo.archived = 1;
+      $scope.archiveTodo = function(todo) {
+        // Archive locally
+        todo.archived = 1;
+        // Archive remotely
+        todo.oid = todo._id.$oid;
+        $http.post('/api/todos/archive', { todo: todo });
+        // Flush client cache
         $scope.flushCache.getTodos =
         $scope.flushCache.getCompletedTodos = true;
       };
 
-      $scope.updateTodo = function(Todo, opts) {
+      $scope.updateTodo = function(todo, opts) {
         _.each(_.keys(opts), function(prop) {
-          Todo[prop] = opts[prop];
+          todo[prop] = opts[prop];
         });
+        // Flush client cache
         $scope.flushCache.getTodos =
         $scope.flushCache.getCompletedTodos = true;
       };
@@ -107,11 +129,16 @@
         var description = $scope.todoDescription;
         description = description.replace(/\s+/, ' ').trim();
         if (description.length) {
-          $scope.Todos.push({
+          var todo = {
             description: $scope.todoDescription,
             status: 0,
             archived: 0
-          });
+          };
+          // Save locally
+          $scope.todos.push(todo);
+          // Persist to the backend
+          $scope.saveTodo(todo);
+          // Flush client cache
           $scope.flushCache.getTodos =
           $scope.flushCache.getCompletedTodos = true;
         }
