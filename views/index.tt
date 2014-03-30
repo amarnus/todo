@@ -1,9 +1,8 @@
 <!-- Main controller -->
-<div ng-controller="TodoController">
+<div class="main" ng-controller="TodoController" data-user-email="<% email %>">
   <!-- Header area -->
   <div class="header clearfix">
-    <h1 class="pull-left">Todo<br>
-    <small>Built using Angular, Dancer and MongoDB.</small></h1>
+    <h1 class="pull-left">Todo <small> Built using AngularJS, Dancer and MongoDB.</small></h1>
     <div class="user-menu pull-right">
       <a href="#" class="btn btn-danger"
       ng-if="<% logged_in %>"
@@ -13,9 +12,11 @@
       </a>
     </div>
   </div>
+  <hr>
   <!-- Logged-out area -->
   <div class="login-container" ng-if="<% logged_out %>" ng-cloak>
-    <a href="#" class="btn btn-primary btn-lg btn-login" ng-click="userLogin()">
+    <a href="#" class="btn btn-primary btn-lg btn-login" ng-click="userLogin()"
+      data-loading-text="<span class='glyphicon glyphicon-user'></span> Logging in..">
       <span class="glyphicon glyphicon-user"></span> Login with Persona
     </a>
   </div>
@@ -39,7 +40,7 @@
       </form>
     </div>
     <!-- Message area -->
-    <div class="alert alert-info">
+    <div class="alert alert-info" ng-if="getCompletedTodos().length">
       You have {{getCompletedTodos().length}} pending
       {{ getCompletedTodos().length === 1 ? "todo" : "todos" }}.
     </div>
@@ -68,7 +69,7 @@
               ng-click="updateTodo(todo, { 'status': 0 })">
                 <span class="glyphicon glyphicon-remove"></span> Not yet done
               </div>
-              <a href="#" ng-click="archiveTodo(todo)" class="btn btn-info btn-sm">
+              <a href="#" ng-click="updateTodo(todo, { 'archived': 1 })" class="btn btn-info btn-sm">
                 <span class="glyphicon glyphicon-cloud"></span> Archive
               </a>
             </div>

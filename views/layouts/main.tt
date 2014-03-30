@@ -48,6 +48,7 @@
 <script src="<% request.uri_base %>/static/bower_components/angular-underscore/angular-underscore.min.js"></script>
 <script src="<% request.uri_base %>/static/bower_components/angular-ui/build/angular-ui-ieshiv.min.js"></script>
 <script src="<% request.uri_base %>/static/bower_components/angular-ui/build/angular-ui.min.js"></script>
+<script src="<% request.uri_base %>/static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="<% request.uri_base %>/static/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 <script src="<% request.uri_base %>/static/bower_components/angular-route/angular-route.min.js"></script>
 <script src="https://login.persona.org/include.js"></script>
@@ -65,6 +66,13 @@
           getCompletedTodos: true
         };
         $scope.fetchTodos();
+        var user = $('.main').attr('data-user-email');
+        user = (user.length > 0) ? user : null;
+        navigator.id.watch({
+          loggedInUser: user,
+          onlogin: $scope.onUserLogin,
+          onlogout: $scope.onUserLogout
+        });
       };
 
       $scope.onUserLogin = function(personaKey) {
@@ -73,28 +81,25 @@
             location.reload();
           })
           .error(function() {
+            jQuery('.btn-login').button('reset');
             navigator.id.logout();
           });
       };
 
       $scope.onUserLogout = function() {
-        console.log(arguments);
+        console.log('The user has logged out of Persona..');
       };
 
       $scope.userLogin = function() {
+        jQuery('.btn-login').button('loading');
         if (navigator.id) {
-          navigator.id.watch({
-            loggedInUser: null,
-            onlogin: $scope.onUserLogin,
-            onlogout: $scope.onUserLogout
-          });
           navigator.id.request();
         }
       };
 
       $scope.userLogout = function() {
         navigator.id.logout();
-        console.log('Redirecting..');
+        console.log('Redirecting user to the logout page..');
         window.location.href = '/user/logout';
       };
 
@@ -109,7 +114,8 @@
 
       $scope.saveTodo = function(todo) {
         $http.post('/api/todos', { todo: todo })
-          .success(function() {
+          .success(function(todoStub) {
+            todo._id = todoStub._id;
             if (console) { console.log('Successfully saved a todo to the backend.'); }
           });
       };
@@ -147,17 +153,6 @@
           console.log('getCompletedTodos(): Cache HIT');
         }
         return this.completedTodos;
-      };
-
-      $scope.archiveTodo = function(todo) {
-        // Archive locally
-        todo.archived = 1;
-        // Archive remotely
-        todo.oid = todo._id.$oid;
-        $http.post('/api/todos/archive', { todo: todo });
-        // Flush client cache
-        $scope.flushCache.getTodos =
-        $scope.flushCache.getCompletedTodos = true;
       };
 
       $scope.updateTodo = function(todo, opts) {
