@@ -25,7 +25,7 @@
     <div class="clearfix">
       <!-- Input area to ask new todos -->
       <form ng-submit="addTodo()" class="form">
-        <div class="form-group col-xs-8">
+        <div class="form-group col-xs-10">
           <label for="description" class="sr-only">
             What do you want to do today?
           </label>
@@ -33,9 +33,11 @@
           class="form-control input-lg"
           placeholder="What do you want to do today?" maxlength="200"/>
         </div>
-        <div class="form-group col-xs-4">
-          <input type="submit" value="Add a todo" class="btn btn-lg btn-primary"/>
-          <button tooltip-trigger="click" tooltip-placement="bottom" tooltip-html-unsafe="<ul><li>Add todos</li><li>Mark todos as complete</li><li>Archive todos for later</li></ul>" class="btn btn-lg btn-default">Help</button>
+        <div class="form-group col-xs-2">
+          <button type="submit" class="btn btn-lg btn-primary">
+            <span class='glyphicon glyphicon-plus-sign'></span> Add a todo
+          </button>
+          <button ng-if="false" ng-cloak tooltip-trigger="click" tooltip-placement="bottom" tooltip-html-unsafe="<ul><li>Add todos</li><li>Mark todos as complete</li><li>Archive todos for later</li></ul>" class="btn btn-lg btn-default">Help</button>
         </div>
       </form>
     </div>
