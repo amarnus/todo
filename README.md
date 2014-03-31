@@ -12,6 +12,8 @@ Required `perl` modules include:
  - `Dancer`
  - `MongoDB`
  - `LWP`
+ 
+![Todo Screenshot 2](https://dl.dropboxusercontent.com/u/1011784/todo-screenshot-2.png)
 
 Once you have sorted out the dependencies, you can launch the server app by doing:
 
@@ -35,3 +37,5 @@ This will download all the required libraries.
 
 Now, navigate to `http://localhost:3000` on your browser and you should see the
 app running for you.
+
+![Todo Screenshot 1](https://dl.dropboxusercontent.com/u/1011784/todo-screenshot-1.png)
