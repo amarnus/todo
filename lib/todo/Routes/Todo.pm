@@ -23,13 +23,14 @@ post '/api/todos' => sub {
   if (defined($account)) {
     $todo->{'email'} = $account->{'email'};
   }
-  my $todo_id = saveTodo($todo);
-  return to_json({ '_id' => $todo_id });
+  $todo = saveTodo($todo);
+  return to_json($todo);
 };
 
 put '/api/todo/:todo_id' => sub {
   header 'Content-Type' => 'application/json';
   my $todo_id = params->{'todo_id'};
   my $req = from_json(request->body);
-  updateTodo($todo_id, $req->{'todo'});
+  my $todo = updateTodo($todo_id, $req->{'todo'});
+  return to_json($todo);
 };

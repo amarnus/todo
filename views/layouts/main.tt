@@ -115,9 +115,12 @@
 
       $scope.saveTodo = function(todo) {
         $http.post('/api/todos', { todo: todo })
-          .success(function(todoStub) {
-            todo._id = todoStub._id;
-            if (console) { console.log('Successfully saved a todo to the backend.'); }
+          .success(function(savedTodo) {
+            // Save locally
+            $scope.todos.push(savedTodo);
+            // Flush client cache
+            $scope.flushCache.getTodos =
+            $scope.flushCache.getCompletedTodos = true;
           });
       };
 
@@ -157,17 +160,19 @@
       };
 
       $scope.updateTodo = function(todo, opts) {
+        // Update locally
         _.each(_.keys(opts), function(prop) {
           todo[prop] = opts[prop];
         });
-        var todoId = todo._id.$oid;
-        $http.put('/api/todo/' + todoId, { todo: todo })
-          .success(function() {
-            // @TODO Do something here.
-          });
         // Flush client cache
         $scope.flushCache.getTodos =
         $scope.flushCache.getCompletedTodos = true;
+        // Update remotely
+        var todoId = todo._id.$oid;
+        $http.put('/api/todo/' + todoId, { todo: todo })
+          .success(function(updatedTodo) {
+            todo = updatedTodo;
+          });
       };
 
       $scope.addTodo = function() {
@@ -179,13 +184,8 @@
             status: 0,
             archived: 0
           };
-          // Save locally
-          $scope.todos.push(todo);
           // Persist to the backend
           $scope.saveTodo(todo);
-          // Flush client cache
-          $scope.flushCache.getTodos =
-          $scope.flushCache.getCompletedTodos = true;
         }
         $scope.todo.description = '';
       };

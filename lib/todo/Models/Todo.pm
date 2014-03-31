@@ -19,15 +19,26 @@ sub getTodos {
   return @todos;
 };
 
+sub getTodo {
+  my ($todo_id) = @_;
+  my $collection = getCollection('todos');
+  return $collection->find_one({ '_id' => MongoDB::OID->new($todo_id) });
+}
+
 sub saveTodo {
   my ($todo) = @_;
   my $collection = getCollection('todos');
-  $collection->save($todo);
+  my $todo_id = $collection->save($todo);
+  return getTodo($todo_id);
 };
 
 sub updateTodo {
   my ($todo_id, $todo) = @_;
+  my $todo_id_bless = MongoDB::OID->new($todo_id);
   my $collection = getCollection('todos');
   delete $todo->{'_id'};
-  $collection->update({ _id => MongoDB::OID->new($todo_id) }, $todo);
+  $collection->update({ _id => $todo_id_bless }, $todo);
+  $todo = getTodo($todo_id);
+  $todo->{'_id'} = $todo_id_bless;
+  return $todo;
 };
