@@ -1,9 +1,9 @@
 package todo;
 
-use Models::Todo;
-use Models::User;
-use Routes::Todo;
-use Routes::User;
+use todo::Models::Todo;
+use todo::Models::User;
+use todo::Routes::Todo;
+use todo::Routes::User;
 
 our $VERSION = '1.00';
 

@@ -1,10 +1,10 @@
-package Routes::Todo;
+package todo::Routes::Todo;
 
 use strict;
-use Models::User;
-use Models::Todo;
 use vars qw($VERSION);
-use Routes::User;
+use todo::Models::User;
+use todo::Models::Todo;
+use todo::Routes::User;
 use Dancer ':syntax';
 
 $VERSION  = 1.00;

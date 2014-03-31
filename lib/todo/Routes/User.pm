@@ -1,9 +1,9 @@
-package Routes::User;
+package todo::Routes::User;
 
 use strict;
 use Exporter;
 use vars qw($VERSION @ISA @EXPORT);
-use Models::User;
+use todo::Models::User;
 use Dancer ':syntax';
 
 $VERSION  = 1.00;
