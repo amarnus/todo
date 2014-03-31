@@ -10,12 +10,12 @@ use HTTP::Request::Common qw{ POST };
 
 $VERSION  = 1.00;
 @ISA      = qw(Exporter);
-@EXPORT   = qw(getTodos getCompletedTodos getArchivedTodos saveTodo updateTodo);
+@EXPORT   = qw(getTodos saveTodo updateTodo);
 
 sub initCollection {
   Dancer::Logger::debug ("Setting up the Database connection..\n");
   my $client = MongoDB::MongoClient->new;
-  our $database = $client->get_database( 'todo' );
+  my $database = $client->get_database( 'todo' );
   our $collection = $database->get_collection( 'todos' );
 };
 
@@ -23,18 +23,6 @@ sub getTodos {
   my ($account) = @_;
   defined(our $collection) or initCollection();
   my @todos = $collection->find({ 'email' => $account->{'email'} })->all;
-  return @todos;
-};
-
-sub getCompletedTodos {
-  defined(our $collection) or initCollection();
-  my @todos = $collection->find({ 'status' => 1 })->all;
-  return @todos;
-};
-
-sub getArchivedTodos {
-  defined(our $collection) or initCollection();
-  my @todos = $collection->find({ 'archived' => 1 })->all;
   return @todos;
 };
 

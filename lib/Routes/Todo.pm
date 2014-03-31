@@ -9,14 +9,10 @@ use Dancer ':syntax';
 
 $VERSION  = 1.00;
 
-sub getTodosRouteHandler {
+get '/api/todos' => sub {
   my $account = getUser();
   my @todos = getTodos($account);
   return to_json(\@todos);
-};
-
-get '/api/todos' => sub {
-  getTodosRouteHandler();
 };
 
 post '/api/todos' => sub {

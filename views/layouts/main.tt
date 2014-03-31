@@ -52,10 +52,9 @@
 <script src="<% request.uri_base %>/static/bower_components/angular-ui/build/angular-ui.min.js"></script>
 <script src="<% request.uri_base %>/static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="<% request.uri_base %>/static/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
-<script src="<% request.uri_base %>/static/bower_components/angular-route/angular-route.min.js"></script>
 <script src="https://login.persona.org/include.js"></script>
 <script>
-  angular.module('todo', ['angular-underscore', 'ui.bootstrap', 'ngRoute'])
+  angular.module('todo', ['angular-underscore', 'ui.bootstrap'])
     .controller('TodoController', ['$scope', '$http', '$location', function($scope, $http, $location) {
 
       $scope.init = function() {

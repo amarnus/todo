@@ -16,7 +16,7 @@ $VERSION  = 1.00;
 sub initCollection() {
   Dancer::Logger::debug ("Setting up the Database connection..\n");
   my $client = MongoDB::MongoClient->new;
-  our $database = $client->get_database( 'todo' );
+  my $database = $client->get_database( 'todo' );
   our $collection = $database->get_collection( 'users' );
 };
 
@@ -26,7 +26,7 @@ sub lookupOrRegisterUser {
   defined(our $collection) or initCollection();
   my $ua = LWP::UserAgent->new();
   my $request = POST ( 'https://verifier.login.persona.org/verify',
-  [ 'assertion' => $persona_key, 'audience' => 'http://localhost:3000' ]);
+    [ 'assertion' => $persona_key, 'audience' => 'http://localhost:3000' ]);
   my $response = $ua->request($request);
   my $user_info = from_json($response->content);
   if ($user_info->{'status'} eq 'okay') {
