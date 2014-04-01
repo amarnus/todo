@@ -2,7 +2,7 @@
 <div class="main" ng-controller="TodoController" data-user-email="<% email %>">
   <!-- Header area -->
   <div class="header clearfix">
-    <h1 class="pull-left">Todo <small> Built using AngularJS, Dancer and MongoDB.</small></h1>
+    <h1 class="pull-left">Todo <small> Built using AngularJS, Dancer, Redis and MongoDB.</small></h1>
     <div class="user-menu pull-right">
       <a href="#" class="btn btn-danger btn-logout"
       ng-if="<% logged_in %>"

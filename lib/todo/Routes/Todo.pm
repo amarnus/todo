@@ -11,7 +11,10 @@ $VERSION  = 1.00;
 
 get '/api/todos' => sub {
   my $account = getUser();
-  my @todos = getTodos($account);
+  my @todos;
+  if (defined($account)) {
+    @todos = getTodos($account);
+  }
   return to_json(\@todos);
 };
 
@@ -23,7 +26,7 @@ post '/api/todos' => sub {
   if (defined($account)) {
     $todo->{'email'} = $account->{'email'};
   }
-  $todo = saveTodo($todo);
+  $todo = saveTodo($account, $todo);
   return to_json($todo);
 };
 
@@ -31,6 +34,10 @@ put '/api/todo/:todo_id' => sub {
   header 'Content-Type' => 'application/json';
   my $todo_id = params->{'todo_id'};
   my $req = from_json(request->body);
-  my $todo = updateTodo($todo_id, $req->{'todo'});
+  my $account = getUser();
+  $req->{'todo'}->{'_id'} = {
+    '$oid' => $todo_id
+  };
+  my $todo = updateTodo($account, $todo_id, $req->{'todo'});
   return to_json($todo);
 };
